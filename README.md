@@ -36,15 +36,19 @@ Your objective is to gather as many TD-SIG-101 points as possible. Please note :
 ### Setting up
 
 - Create a truffle project and configure it on Infura (2pts)
-- Create an ERC721 smart contract and a separate minter contract that is allowed to mint ERC721 tokens (2 pts)
+- Create an ERC721 smart contract and a separate minter contract that is allowed to mint ERC721 tokens using `ex1_testERC721` (2 pts)
 
 ### Generating and reading signatures
-- Generate a signature and send it to evaluator (2 pts)
-- Add a function getAddressFromSignature in the minter contract (2 pts)
-- Add a function signerIsWhitelisted() similar to bouncerProxy to know if a signer is whitelisted (2 pts)
-Add a function to let anyone claim a token, as long as they provide a signature by an authorized minter (3 pts)
+- Generate a signature and send it to evaluator using `ex2_generateASignature` (2 pts)
+- Add a function getAddressFromSignature in the minter contract. Get points with `ex3_extractAddressFromSignature` (2 pts)
+- Add a function signerIsWhitelisted() similar to bouncerProxy to know if a signer is whitelisted. Get points with `ex4_manageWhiteListWithSignature` (2 pts)
+- Add a function to let anyone claim a token, as long as they provide a signature by an authorized minter. Get points with `ex5_mintATokenWithASpecificSignature` (3 pts)
 
 ### Meta transactions
-Deploy bouncerProxy contract and add one of your account (A) as a signer (3 pts)
-Call Evaluator from bouncerProxy, originatin the tx from an account not whitelisted in bouncerProxy(4 pts)
+- Deploy bouncerProxy contract and add one of your account (A) as a signer. Get points with `ex6_deployBouncerProxyAndWhitelistYourself` (3 pts)
+- Call Evaluator from bouncerProxy, originatin the tx from an account not whitelisted in bouncerProxy. Get points with `ex7_useBouncerProxyToCallEvaluator` (4 pts)
+
+## TD addresses
+- Points contracts `0x878D1Dbbc0a3f5b73009f09ceCBEEBba36184297`
+- Evaluator `0x0605830a47081c4f3F8C4583C624A901945321dB`
 
