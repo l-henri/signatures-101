@@ -54,4 +54,6 @@ async function deployRecap(deployer, network, accounts) {
 	console.log("Evaluator " + Evaluator.address)
 }
 
-
+// truffle run verify ERC20TD@0x53e37895Ec887F577EC481549Aeb14B367D1904a --network goerli
+// truffle run verify BouncerProxy@0xc1C00C5A5d620A9A907c0B6f4e186838f5d82532 --network goerli
+// truffle run verify evaluator@0x657e2603c61eC6562258d72ce9E2C27E8537F81C --network goerli
