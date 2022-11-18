@@ -26,10 +26,10 @@ Your objective is to gather as many TD-SIG-101 points as possible. Please note :
 - Register for an infura key and set it up in your truffle config file
 - Download and launch Ganache
 - Test that you are able to connect to the ganache network with `truffle console`
-- Test that you are able to connect to the rinkeby network with `truffle console --network rinkeby`
+- Test that you are able to connect to the goerli network with `truffle console --network goerli`
 - To deploy a contract, configure a migration in the [migration folder](migrations). Look at the way the TD is deploy and try to iterate
 - Test your deployment in Ganache `truffle migrate`
-- Deploy on Rinkeby `truffle migrate --network rinkeby --skip-dry-run`
+- Deploy on goerli `truffle migrate --network goerli --skip-dry-run`
 
 
 ## Points list
@@ -48,7 +48,10 @@ Your objective is to gather as many TD-SIG-101 points as possible. Please note :
 - Deploy bouncerProxy contract and add one of your account (A) as a signer. Get points with `ex6_deployBouncerProxyAndWhitelistYourself` (3 pts)
 - Call Evaluator from bouncerProxy, originatin the tx from an account not whitelisted in bouncerProxy. Get points with `ex7_useBouncerProxyToCallEvaluator` (4 pts)
 
+### All in one
+- Finish all the workshop in a single transaction! Write a contract that implements a function called `completeWorkshop()` when called. Call `ex8_allInOne()` from this contract. All points are credited to the validating contract.
+
 ## TD addresses
-- Points contracts `0x878D1Dbbc0a3f5b73009f09ceCBEEBba36184297`
-- Evaluator `0x0605830a47081c4f3F8C4583C624A901945321dB`
+- Points contracts `0x53e37895Ec887F577EC481549Aeb14B367D1904a`
+- Evaluator `0x657e2603c61eC6562258d72ce9E2C27E8537F81C`
 
