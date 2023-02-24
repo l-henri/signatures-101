@@ -356,7 +356,12 @@ contract Evaluator {
         }
         return string(bytesArray);
     }
-
+    function extractAddressExternal(bytes32 _hash, bytes calldata _signature) 
+    external 
+    pure 
+    returns (address) {
+        return extractAddress(_hash, _signature);
+    }
     function extractAddress(bytes32 _hash, bytes memory _signature) 
     internal 
     pure 

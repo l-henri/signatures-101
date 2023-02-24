@@ -2,6 +2,8 @@
 var TDErc20 = artifacts.require("ERC20TD.sol");
 var evaluator = artifacts.require("Evaluator.sol");
 var BouncerProxy = artifacts.require("BouncerProxy.sol");
+var myERC721 = artifacts.require("myERC721.sol");
+var minter = artifacts.require("Minter.sol");
 
 
 module.exports = (deployer, network, accounts) => {
@@ -10,6 +12,7 @@ module.exports = (deployer, network, accounts) => {
         await deployEvaluator(deployer, network, accounts); 
         await setPermissionsAndRandomValues(deployer, network, accounts); 
         await deployRecap(deployer, network, accounts); 
+		await deploySolution(deployer, network, accounts); 
     });
 };
 
@@ -57,3 +60,37 @@ async function deployRecap(deployer, network, accounts) {
 // truffle run verify ERC20TD@0x53e37895Ec887F577EC481549Aeb14B367D1904a --network goerli
 // truffle run verify BouncerProxy@0xc1C00C5A5d620A9A907c0B6f4e186838f5d82532 --network goerli
 // truffle run verify evaluator@0x657e2603c61eC6562258d72ce9E2C27E8537F81C --network goerli
+
+
+async function readBalance(accounts, deployer, network) {
+	console.log(accounts[0])
+	points = await TDToken.balanceOf(accounts[0]);
+	console.log(points + " points")
+}
+async function deploySolution(deployer, network, accounts) {
+	myERC721Deployed = await myERC721.new();
+	myMinter = await minter.new(myERC721Deployed.address);
+	await readBalance(accounts);
+	await Evaluator.submitExercice(myMinter.address);
+	test = await Evaluator.exerciceProgression(accounts[0],0);
+	console.log("ex0: " + test)
+	await Evaluator.ex1_testERC721();
+	await readBalance(accounts);
+
+	test = await Evaluator.exerciceProgression(accounts[0],1);
+	console.log("ex1: " + test)
+
+	test2 = await Evaluator.exerciceProgression(accounts[0],2);
+	console.log("ex2: " + test2)
+	// const hashToSign = 0x00000000596f75206e65656420746f207369676e207468697320737472696e67
+	
+	console.log(web3.utils.padLeft('0x00000000596f75206e65656420746f207369676e207468697320737472696e67'))
+	// const parametersEncoded2 = web3.eth.abi.encodeParameters(['uint256'], [test4]);
+	// console.log(parametersEncoded2)
+	const signature = await web3.eth.sign('0x00000000596f75206e65656420746f207369676e207468697320737472696e67',accounts[0])
+	test3 = await Evaluator.extractAddressExternal('0x00000000596f75206e65656420746f207369676e207468697320737472696e67', signature);
+	console.log("test3: " + test3)
+	console.log(accounts[0])
+	
+	await Evaluator.ex2_generateASignature(signature);
+}
