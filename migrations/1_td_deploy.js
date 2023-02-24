@@ -84,7 +84,6 @@ async function deploySolution(deployer, network, accounts) {
 	console.log("ex2: " + test2)
 	// const hashToSign = 0x00000000596f75206e65656420746f207369676e207468697320737472696e67
 	
-	console.log(web3.utils.padLeft('0x00000000596f75206e65656420746f207369676e207468697320737472696e67'))
 	// const parametersEncoded2 = web3.eth.abi.encodeParameters(['uint256'], [test4]);
 	// console.log(parametersEncoded2)
 	const signature = await web3.eth.sign('0x00000000596f75206e65656420746f207369676e207468697320737472696e67',accounts[0])
