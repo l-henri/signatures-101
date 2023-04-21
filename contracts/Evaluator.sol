@@ -1,4 +1,5 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 pragma experimental ABIEncoderV2;
 
 import "./ERC20TD.sol";
@@ -27,7 +28,6 @@ contract Evaluator {
     event newRandomBytes32AndSig(bytes32 data, bytes sig);
 
     constructor(ERC20TD _TDERC20, address payable _referenceBouncerProxy) 
-    public 
     {
         TDERC20 = _TDERC20;
         referenceBouncerProxy = _referenceBouncerProxy;
@@ -257,7 +257,7 @@ contract Evaluator {
         require(referenceCodeHash == codeHash, "Deployed code is different from reference");
 
         // Build bouncer proxy
-        BouncerProxy localBouncer = BouncerProxy(msg.sender);
+        BouncerProxy localBouncer = BouncerProxy(payable(msg.sender));
         // Check if sender is whitelisted
         require(!localBouncer.whitelist(tx.origin), "Tx originator is whitelisted");
 

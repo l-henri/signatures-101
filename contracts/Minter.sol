@@ -1,11 +1,12 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 import "./IExerciceSolution.sol";
 import "./myERC721.sol";
 
 contract Minter is IExerciceSolution {
     myERC721 public myERC721Instance;
 
-    constructor(myERC721 _myERC721Instance) public 
+    constructor(myERC721 _myERC721Instance) 
     {
         myERC721Instance = _myERC721Instance;
     }

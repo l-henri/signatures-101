@@ -1,4 +1,5 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 /*
   Bouncer identity proxy that executes meta transactions for etherless accounts.
@@ -60,7 +61,6 @@ contract BouncerProxy {
 
     //whitelist the deployer so they can whitelist others
     constructor() 
-    public 
     {
         whitelist[msg.sender] = true;
     }
@@ -81,7 +81,7 @@ contract BouncerProxy {
     {
         require(whitelist[msg.sender],"BouncerProxy::updateWhitelist Account Not Whitelisted");
         whitelist[_account] = _value;
-        UpdateWhitelist(_account,_value);
+        emit UpdateWhitelist(_account,_value);
         return true;
     }
 

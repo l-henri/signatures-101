@@ -20,22 +20,19 @@ Your objective is to gather as many TD-SIG-101 points as possible. Please note :
 
 ### Getting to work
 - Clone the repo on your machine
-- Install the required packages `npm install truffle`, `npm install @openzeppelin/contracts@3.4.1` , `npm install @truffle/hdwallet-provider`, `npm i @supercharge/strings`
-- Rename `example-truffle-config.js` to `truffle-config.js` . That is now your truffle config file.
-- Configure a seed for deployment of contracts in your truffle config file
-- Register for an infura key and set it up in your truffle config file
-- Download and launch Ganache
-- Test that you are able to connect to the ganache network with `truffle console`
-- Test that you are able to connect to the goerli network with `truffle console --network goerli`
-- To deploy a contract, configure a migration in the [migration folder](migrations). Look at the way the TD is deploy and try to iterate
-- Test your deployment in Ganache `truffle migrate`
-- Deploy on goerli `truffle migrate --network goerli --skip-dry-run`
-
+- Install the required packages `npm i`
+- Register for an infura API key 
+- Register for an etherscan API key 
+- Create a `.env` file that contains a mnemonic phrase for deployment, an infura API key and an Etherscan API key. 
+- Test that you are able to connect to the Sepolia network with `npx hardhat console --network sepolia`
+- To deploy a contract, configure a script in the [scripts folder](scripts). Look at the way the TD is deployed and try to iterate
+- Test your deployment locallly with `npx hardhat run scripts/your-script.js`
+- Deploy on Sepolia `npx hardhat run scripts/your-script.js --network sepolia`
 
 ## Points list
 ### Setting up
 
-- Create a truffle project and configure it on Infura (2pts)
+- Create a hardhat project and configure it on Infura (2pts)
 - Create an ERC721 smart contract and a separate minter contract that is allowed to mint ERC721 tokens using `ex1_testERC721` (2 pts)
 
 ### Generating and reading signatures
@@ -52,6 +49,7 @@ Your objective is to gather as many TD-SIG-101 points as possible. Please note :
 - Finish all the workshop in a single transaction! Write a contract that implements a function called `completeWorkshop()` when called. Call `ex8_allInOne()` from this contract. All points are credited to the validating contract.
 
 ## TD addresses
-- Points contracts `0x53e37895Ec887F577EC481549Aeb14B367D1904a`
-- Evaluator `0x657e2603c61eC6562258d72ce9E2C27E8537F81C`
+- ERC20TD [`0xA5175D7881a0B0fBd531986a9C8feA4231cbd874`](https://sepolia.etherscan.io/address/0xA5175D7881a0B0fBd531986a9C8feA4231cbd874)
+- Evaluator [`0x7599A6d243a1d78c495817cFB9D9583E6f6740DD`](https://sepolia.etherscan.io/address/0x7599A6d243a1d78c495817cFB9D9583E6f6740DD)
+
 
