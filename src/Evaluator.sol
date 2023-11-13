@@ -9,17 +9,16 @@ import "./BouncerProxy.sol";
 import "./IAllInOneSolution.sol";
 
 contract Evaluator {
-
     mapping(address => bool) public teachers;
     ERC20TD TDERC20;
-   
+
     mapping(address => mapping(uint256 => bool)) public exerciceProgression;
     mapping(address => IExerciceSolution) public studentExerciceSolution;
     mapping(address => bool) public hasBeenPaired;
 
     bytes32[20] private randomBytes32ToSign;
     bytes[20] private associatedSignatures;
-    uint public nextValueStoreRank;
+    uint256 public nextValueStoreRank;
     mapping(bytes32 => bool) public signedBytes32;
     address payable public referenceBouncerProxy;
 
@@ -27,22 +26,17 @@ contract Evaluator {
     event UpdateWhitelist(address _account, bool _value);
     event newRandomBytes32AndSig(bytes32 data, bytes sig);
 
-    constructor(ERC20TD _TDERC20, address payable _referenceBouncerProxy) 
-    {
+    constructor(ERC20TD _TDERC20, address payable _referenceBouncerProxy) {
         TDERC20 = _TDERC20;
         referenceBouncerProxy = _referenceBouncerProxy;
         emit constructedCorrectly(address(TDERC20), referenceBouncerProxy);
     }
 
-    fallback () external payable 
-    {}
+    fallback() external payable {}
 
-    receive () external payable 
-    {}
+    receive() external payable {}
 
-    function ex1_testERC721()
-    public  
-    {
+    function ex1_testERC721() public {
         // Checking a solution was submitted
         require(exerciceProgression[msg.sender][0], "No solution submitted");
 
@@ -50,7 +44,7 @@ contract Evaluator {
         address studentERC721Address = studentExerciceSolution[msg.sender].ERC721Address();
         IERC721 studentERC721 = IERC721(studentERC721Address);
 
-        // Check they are two different contracts 
+        // Check they are two different contracts
         require(studentERC721Address != address(studentExerciceSolution[msg.sender]), "ERC721 and minter are the same");
 
         // Checking balance pre minting
@@ -74,102 +68,104 @@ contract Evaluator {
         // Check that token 1 can be transferred back to msg.sender, so it's a real ERC721
         uint256 senderBalancePreTransfer = studentERC721.balanceOf(msg.sender);
         studentERC721.safeTransferFrom(address(this), msg.sender, newToken);
-        require(studentERC721.balanceOf(address(this)) == evaluatorBalancePreMint, "Balance did not decrease after transfer");
+        require(
+            studentERC721.balanceOf(address(this)) == evaluatorBalancePreMint, "Balance did not decrease after transfer"
+        );
         require(studentERC721.ownerOf(newToken) == msg.sender, "Token does not belong to you");
-        require(studentERC721.balanceOf(msg.sender) == senderBalancePreTransfer + 1, "Balance did not increase after transfer");
+        require(
+            studentERC721.balanceOf(msg.sender) == senderBalancePreTransfer + 1,
+            "Balance did not increase after transfer"
+        );
 
         // Crediting points
-        if (!exerciceProgression[msg.sender][1])
-        {
+        if (!exerciceProgression[msg.sender][1]) {
             exerciceProgression[msg.sender][1] = true;
             // ERC721 points
             TDERC20.distributeTokens(msg.sender, 2);
         }
     }
 
-    function ex2_generateASignature(bytes memory _signature) 
-    public 
-    {
+    function ex2_generateASignature(bytes memory _signature) public {
         bytes32 stringToSignToGetPoint = 0x00000000596f75206e65656420746f207369676e207468697320737472696e67;
 
         // If tx fails here, it means the transaction did not receive a valid signature
-        address signatureSender = extractAddress(stringToSignToGetPoint , _signature);
+        address signatureSender = extractAddress(stringToSignToGetPoint, _signature);
         require(tx.origin == signatureSender, "signature does not match tx originator");
 
         // Crediting points
-        if (!exerciceProgression[msg.sender][2])
-        {
+        if (!exerciceProgression[msg.sender][2]) {
             exerciceProgression[msg.sender][2] = true;
             // ERC721 points
             TDERC20.distributeTokens(msg.sender, 2);
         }
     }
 
-    function ex3_extractAddressFromSignature() 
-    public 
-    {        
+    function ex3_extractAddressFromSignature() public {
         // Retrieving a random signature and associated address
-        address signatureSender = extractAddress(randomBytes32ToSign[nextValueStoreRank] , associatedSignatures[nextValueStoreRank]);
+        address signatureSender =
+            extractAddress(randomBytes32ToSign[nextValueStoreRank], associatedSignatures[nextValueStoreRank]);
 
         // Checking that student contract is able to extract the address from the signature
-        address retrievedAddressByExerciceSolution = studentExerciceSolution[msg.sender].getAddressFromSignature(randomBytes32ToSign[nextValueStoreRank] , associatedSignatures[nextValueStoreRank]);
-        
+        address retrievedAddressByExerciceSolution = studentExerciceSolution[msg.sender].getAddressFromSignature(
+            randomBytes32ToSign[nextValueStoreRank], associatedSignatures[nextValueStoreRank]
+        );
+
         require(signatureSender == retrievedAddressByExerciceSolution, "Signature not interpreted correctly");
-        
+
         // Incrementing next value store rank
         nextValueStoreRank += 1;
-        if (nextValueStoreRank >= 20)
-        {
+        if (nextValueStoreRank >= 20) {
             nextValueStoreRank = 0;
         }
 
         // Crediting points
-        if (!exerciceProgression[msg.sender][3])
-        {
+        if (!exerciceProgression[msg.sender][3]) {
             exerciceProgression[msg.sender][3] = true;
             // ERC721 points
             TDERC20.distributeTokens(msg.sender, 2);
         }
     }
 
-    function ex4_manageWhiteListWithSignature(bytes32 _aBytes32YouChose, bytes memory _theAssociatedSignature)
-    public
-    {
+    function ex4_manageWhiteListWithSignature(bytes32 _aBytes32YouChose, bytes memory _theAssociatedSignature) public {
         // Is your signature correctly formated
-        address signatureSender = extractAddress(_aBytes32YouChose , _theAssociatedSignature);
-        // Broadcaster is signer 
+        address signatureSender = extractAddress(_aBytes32YouChose, _theAssociatedSignature);
+        // Broadcaster is signer
         require(signatureSender == tx.origin, "signature does not match tx originator");
 
         // Is the signer whitelisted
         require(studentExerciceSolution[msg.sender].whitelist(signatureSender), "originator not whitelisted");
-        require(studentExerciceSolution[msg.sender].signerIsWhitelisted(_aBytes32YouChose, _theAssociatedSignature), "Signature not validated correctly");
+        require(
+            studentExerciceSolution[msg.sender].signerIsWhitelisted(_aBytes32YouChose, _theAssociatedSignature),
+            "Signature not validated correctly"
+        );
 
         // Extracting a random signer
-        address storedSignatureSender = extractAddress(randomBytes32ToSign[nextValueStoreRank] , associatedSignatures[nextValueStoreRank]);
+        address storedSignatureSender =
+            extractAddress(randomBytes32ToSign[nextValueStoreRank], associatedSignatures[nextValueStoreRank]);
 
         // Is a random signer whitelisted whitelisted
         require(!studentExerciceSolution[msg.sender].whitelist(storedSignatureSender), "Random signer is whitelisted");
-        require(!studentExerciceSolution[msg.sender].signerIsWhitelisted(randomBytes32ToSign[nextValueStoreRank] , associatedSignatures[nextValueStoreRank]), "Random signature works");
-        
+        require(
+            !studentExerciceSolution[msg.sender].signerIsWhitelisted(
+                randomBytes32ToSign[nextValueStoreRank], associatedSignatures[nextValueStoreRank]
+            ),
+            "Random signature works"
+        );
+
         // Incrementing next value store rank
         nextValueStoreRank += 1;
-        if (nextValueStoreRank >= 20)
-        {
+        if (nextValueStoreRank >= 20) {
             nextValueStoreRank = 0;
         }
         // Crediting points
-        if (!exerciceProgression[msg.sender][4])
-        {
+        if (!exerciceProgression[msg.sender][4]) {
             exerciceProgression[msg.sender][4] = true;
             // ERC721 points
             TDERC20.distributeTokens(msg.sender, 2);
         }
     }
 
-    function ex5_mintATokenWithASpecificSignature(bytes memory _theRequiredSignature)
-    public
-    {
-
+    function ex5_mintATokenWithASpecificSignature(bytes memory _theRequiredSignature) public {
         // Retrieve ERC721 address from ExerciceSolution
         address studentERC721Address = studentExerciceSolution[msg.sender].ERC721Address();
         IERC721 studentERC721 = IERC721(studentERC721Address);
@@ -179,9 +175,9 @@ contract Evaluator {
         bytes32 dataToSign = keccak256(abi.encodePacked(address(this), tx.origin, studentERC721Address));
 
         // Has sender signed the correct piece of data, and extract the address
-        address signatureSender = extractAddress(dataToSign , _theRequiredSignature);
+        address signatureSender = extractAddress(dataToSign, _theRequiredSignature);
 
-        // Broadcaster is signer 
+        // Broadcaster is signer
         require(signatureSender == tx.origin, "signature does not match tx originator");
 
         // Checking that we own no NFT before claiming
@@ -199,31 +195,31 @@ contract Evaluator {
 
         // Incrementing next value store rank
         nextValueStoreRank += 1;
-        if (nextValueStoreRank >= 20)
-        {
+        if (nextValueStoreRank >= 20) {
             nextValueStoreRank = 0;
         }
         // Crediting points
-        if (!exerciceProgression[msg.sender][5])
-        {
+        if (!exerciceProgression[msg.sender][5]) {
             exerciceProgression[msg.sender][5] = true;
             // ERC721 points
             TDERC20.distributeTokens(msg.sender, 3);
         }
     }
 
-    function ex6_deployBouncerProxyAndWhitelistYourself(address payable myBouncerProxy)
-    public
-    {
+    function ex6_deployBouncerProxyAndWhitelistYourself(address payable myBouncerProxy) public {
         // Build bouncer proxy
         BouncerProxy localBouncer = BouncerProxy(myBouncerProxy);
         // Retrieving your contract code hash
         bytes32 codeHash;
-        assembly { codeHash := extcodehash(myBouncerProxy) }
+        assembly {
+            codeHash := extcodehash(myBouncerProxy)
+        }
         // Checking it is the correct code hash
         bytes32 referenceCodeHash;
         address _referenceBouncerProxy = referenceBouncerProxy;
-        assembly { referenceCodeHash := extcodehash(_referenceBouncerProxy) }
+        assembly {
+            referenceCodeHash := extcodehash(_referenceBouncerProxy)
+        }
 
         require(referenceCodeHash == codeHash, "Deployed code is different from reference");
 
@@ -233,26 +229,26 @@ contract Evaluator {
         require(localBouncer.whitelist(msg.sender), "Message sender is not whitelisted");
 
         // Crediting points
-        if (!exerciceProgression[msg.sender][6])
-        {
+        if (!exerciceProgression[msg.sender][6]) {
             exerciceProgression[msg.sender][6] = true;
             // ERC721 points
             TDERC20.distributeTokens(msg.sender, 3);
         }
     }
 
-    function ex7_useBouncerProxyToCallEvaluator()
-    public
-    {
-    
+    function ex7_useBouncerProxyToCallEvaluator() public {
         // Retrieving caller contract code hash
         bytes32 codeHash;
         address _sender = msg.sender;
-        assembly { codeHash := extcodehash(_sender) }
+        assembly {
+            codeHash := extcodehash(_sender)
+        }
         // Checking it is the correct code hash
         bytes32 referenceCodeHash;
         address _referenceBouncerProxy = referenceBouncerProxy;
-        assembly { referenceCodeHash := extcodehash(_referenceBouncerProxy) }
+        assembly {
+            referenceCodeHash := extcodehash(_referenceBouncerProxy)
+        }
 
         require(referenceCodeHash == codeHash, "Deployed code is different from reference");
 
@@ -262,17 +258,14 @@ contract Evaluator {
         require(!localBouncer.whitelist(tx.origin), "Tx originator is whitelisted");
 
         // Crediting points
-        if (!exerciceProgression[msg.sender][7])
-        {
+        if (!exerciceProgression[msg.sender][7]) {
             exerciceProgression[msg.sender][7] = true;
             // ERC721 points
             TDERC20.distributeTokens(msg.sender, 4);
         }
     }
 
-    function ex8_allInOne() 
-    public  
-    {
+    function ex8_allInOne() public {
         // Checking that solution has no token yet
         uint256 initialBalance = TDERC20.balanceOf(msg.sender);
         require(initialBalance == 0, "Solution should start with 0 points");
@@ -284,28 +277,22 @@ contract Evaluator {
         // Checking that at least 10 exercices where validated
         uint256 finalBalance = TDERC20.balanceOf(msg.sender);
         uint256 decimals = TDERC20.decimals();
-        require(finalBalance >= 10**decimals *16, "Solution should end with at least than 2 points");
+        require(finalBalance >= 10 ** decimals * 16, "Solution should end with at least than 2 points");
 
-        if (!exerciceProgression[msg.sender][8])
-        {
+        if (!exerciceProgression[msg.sender][8]) {
             exerciceProgression[msg.sender][8] = true;
             // Distribute points
             TDERC20.distributeTokens(msg.sender, 2);
         }
-
     }
 
-    modifier onlyTeachers() 
-    {
-
+    modifier onlyTeachers() {
         require(TDERC20.teachers(msg.sender));
         _;
     }
 
-    /* Internal functions and modifiers */ 
-    function submitExercice(IExerciceSolution studentExercice)
-    public
-    {
+    /* Internal functions and modifiers */
+    function submitExercice(IExerciceSolution studentExercice) public {
         // Checking this contract was not used by another group before
         require(!hasBeenPaired[address(studentExercice)]);
 
@@ -313,41 +300,32 @@ contract Evaluator {
         studentExerciceSolution[msg.sender] = studentExercice;
         hasBeenPaired[address(studentExercice)] = true;
 
-        if (!exerciceProgression[msg.sender][0])
-        {
+        if (!exerciceProgression[msg.sender][0]) {
             exerciceProgression[msg.sender][0] = true;
             // setup points
             TDERC20.distributeTokens(msg.sender, 2);
         }
     }
 
-    function setRandomBytes32AndSignature(bytes32[20] memory _randomData, bytes[20] memory _signatures) 
-    public 
-    onlyTeachers
+    function setRandomBytes32AndSignature(bytes32[20] memory _randomData, bytes[20] memory _signatures)
+        public
+        onlyTeachers
     {
         randomBytes32ToSign = _randomData;
         associatedSignatures = _signatures;
         nextValueStoreRank = 0;
-        for (uint i = 0; i < 20; i++)
-        {
+        for (uint256 i = 0; i < 20; i++) {
             emit newRandomBytes32AndSig(randomBytes32ToSign[i], associatedSignatures[i]);
         }
     }
 
-    function _compareStrings(string memory a, string memory b) 
-    internal 
-    pure 
-    returns (bool) 
-    {
+    function _compareStrings(string memory a, string memory b) internal pure returns (bool) {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 
-    function bytes32ToString(bytes32 _bytes32) 
-    public 
-    pure returns (string memory) 
-    {
+    function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
         uint8 i = 0;
-        while(i < 32 && _bytes32[i] != 0) {
+        while (i < 32 && _bytes32[i] != 0) {
             i++;
         }
         bytes memory bytesArray = new bytes(i);
@@ -356,16 +334,12 @@ contract Evaluator {
         }
         return string(bytesArray);
     }
-    function extractAddressExternal(bytes32 _hash, bytes calldata _signature) 
-    external 
-    pure 
-    returns (address) {
+
+    function extractAddressExternal(bytes32 _hash, bytes calldata _signature) external pure returns (address) {
         return extractAddress(_hash, _signature);
     }
-    function extractAddress(bytes32 _hash, bytes memory _signature) 
-    internal 
-    pure 
-    returns (address) {
+
+    function extractAddress(bytes32 _hash, bytes memory _signature) internal pure returns (address) {
         bytes32 r;
         bytes32 s;
         uint8 v;
@@ -391,9 +365,7 @@ contract Evaluator {
             return address(0);
         } else {
             // solium-disable-next-line arg-overflow
-            return ecrecover(keccak256(
-                abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
-                ), v, r, s);
+            return ecrecover(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)), v, r, s);
         }
     }
 }

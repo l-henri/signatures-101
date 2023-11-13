@@ -4,19 +4,10 @@ require('dotenv').config()
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   networks: {
-    hardhat: {
-    },
-    goerli: {
-      url: "https://goerli.infura.io/v3/" + process.env.infura,
-      accounts: {
-        mnemonic: process.env.mnemonic
-      }
-    },
+    hardhat: {},
     sepolia: {
-      url: "https://sepolia.infura.io/v3/" + process.env.infura,
-      accounts: {
-        mnemonic: process.env.mnemonic
-      }
+      url: process.env.sepolia_url,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   solidity: {
@@ -29,6 +20,6 @@ module.exports = {
     }
   },
   etherscan: {
-    apiKey: process.env.etherscan,
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };
